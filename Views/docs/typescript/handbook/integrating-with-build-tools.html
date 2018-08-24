@@ -1,0 +1,99 @@
+<h1 class="post-title">Integrating with Build Tools</h1>     <p>Build tools</p> <ul> <li><a href="#browserify">Browserify</a></li> <li><a href="#duo">Duo</a></li> <li><a href="#grunt">Grunt</a></li> <li><a href="#gulp">Gulp</a></li> <li><a href="#jspm">Jspm</a></li> <li><a href="#webpack">Webpack</a></li> <li><a href="#msbuild">MSBuild</a></li> <li><a href="#nuget">NuGet</a></li> </ul> <h2 id="browserify">Browserify</h2> <h3 id="install">Install</h3> <pre data-language="sh">npm install tsify
+</pre> <h3 id="using-command-line-interface">Using Command Line Interface</h3> <pre data-language="sh">browserify main.ts -p [ tsify --noImplicitAny ] &gt; bundle.js
+</pre> <h3 id="using-api">Using API</h3> <pre data-language="javascript">var browserify = require("browserify");
+var tsify = require("tsify");
+
+browserify()
+  .add("main.ts")
+  .plugin("tsify", { noImplicitAny: true })
+  .bundle()
+  .pipe(process.stdout);
+</pre> <p>More details: <a href="https://github.com/smrq/tsify">smrq/tsify</a></p> <h2 id="duo">Duo</h2> <h3 id="install-1">Install</h3> <pre data-language="sh">npm install duo-typescript
+</pre> <h3 id="using-command-line-interface-1">Using Command Line Interface</h3> <pre data-language="sh">duo --use duo-typescript entry.ts
+</pre> <h3 id="using-api-1">Using API</h3> <pre data-language="javascript">var Duo = require("duo");
+var fs = require("fs")
+var path = require("path")
+var typescript = require("duo-typescript");
+
+var out = path.join(__dirname, "output.js")
+
+Duo(__dirname)
+  .entry("entry.ts")
+  .use(typescript())
+  .run(function (err, results) {
+    if (err) throw err;
+    // Write compiled result to output file
+    fs.writeFileSync(out, results.code);
+  });
+</pre> <p>More details: <a href="https://github.com/frankwallis/duo-typescript">frankwallis/duo-typescript</a></p> <h2 id="grunt">Grunt</h2> <h3 id="install-2">Install</h3> <pre data-language="sh">npm install grunt-ts
+</pre> <h3 id="basic-gruntfilejs">Basic Gruntfile.js</h3> <pre data-language="javascript">module.exports = function(grunt) {
+  grunt.initConfig({
+    ts: {
+      default : {
+        src: ["**/*.ts", "!node_modules/**/*.ts"]
+      }
+    }
+  });
+  grunt.loadNpmTasks("grunt-ts");
+  grunt.registerTask("default", ["ts"]);
+};
+</pre> <p>More details: <a href="https://github.com/TypeStrong/grunt-ts">TypeStrong/grunt-ts</a></p> <h2 id="gulp">Gulp</h2> <h3 id="install-3">Install</h3> <pre data-language="sh">npm install gulp-typescript
+</pre> <h3 id="basic-gulpfilejs">Basic gulpfile.js</h3> <pre data-language="javascript">var gulp = require("gulp");
+var ts = require("gulp-typescript");
+
+gulp.task("default", function () {
+  var tsResult = gulp.src("src/*.ts")
+    .pipe(ts({
+        noImplicitAny: true,
+        out: "output.js"
+    }));
+  return tsResult.js.pipe(gulp.dest("built/local"));
+});
+</pre> <p>More details: <a href="https://github.com/ivogabe/gulp-typescript">ivogabe/gulp-typescript</a></p> <h2 id="jspm">Jspm</h2> <h3 id="install-4">Install</h3> <pre data-language="sh">npm install -g jspm@beta
+</pre> <p><em>Note: Currently TypeScript support in jspm is in 0.16beta</em></p> <p>More details: <a href="https://github.com/Microsoft/TypeScriptSamples/tree/master/jspm">TypeScriptSamples/jspm</a></p> <h2 id="webpack">Webpack</h2> <h3 id="install-5">Install</h3> <pre data-language="sh">npm install ts-loader --save-dev
+</pre> <h3 id="basic-webpackconfigjs">Basic webpack.config.js</h3> <pre data-language="javascript">module.exports = {
+  entry: "./src/index.tsx",
+  output: {
+    filename: "bundle.js"
+  },
+  resolve: {
+    // Add '.ts' and '.tsx' as a resolvable extension.
+    extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js"]
+  },
+  module: {
+    loaders: [
+      // all files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'
+      { test: /\.tsx?$/, loader: "ts-loader" }
+    ]
+  }
+}
+</pre> <p>See <a href="https://www.npmjs.com/package/ts-loader">more details on ts-loader here</a>.</p> <p>Alternatives:</p> <ul> <li><a href="https://www.npmjs.com/package/awesome-typescript-loader">awesome-typescript-loader</a></li> </ul> <h2 id="msbuild">MSBuild</h2> <p>Update project file to include locally installed <code>Microsoft.TypeScript.Default.props</code> (at the top) and <code>Microsoft.TypeScript.targets</code> (at the bottom) files:</p> <pre data-language="xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"&gt;
+  &lt;!-- Include default props at the top --&gt;
+  &lt;Import
+    Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props"
+    Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" /&gt;
+
+  &lt;!-- TypeScript configurations go here --&gt;
+  &lt;PropertyGroup Condition="'$(Configuration)' == 'Debug'"&gt;
+  &lt;TypeScriptRemoveComments&gt;false&lt;/TypeScriptRemoveComments&gt;
+  &lt;TypeScriptSourceMap&gt;true&lt;/TypeScriptSourceMap&gt;
+  &lt;/PropertyGroup&gt;
+  &lt;PropertyGroup Condition="'$(Configuration)' == 'Release'"&gt;
+  &lt;TypeScriptRemoveComments&gt;true&lt;/TypeScriptRemoveComments&gt;
+  &lt;TypeScriptSourceMap&gt;false&lt;/TypeScriptSourceMap&gt;
+  &lt;/PropertyGroup&gt;
+
+  &lt;!-- Include default targets at the bottom --&gt;
+  &lt;Import
+    Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets"
+    Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" /&gt;
+&lt;/Project&gt;
+</pre> <p>More details about defining MSBuild compiler options: <a href="compiler-options-in-msbuild">Setting Compiler Options in MSBuild projects</a></p> <h2 id="nuget">NuGet</h2> <ul> <li>Right-Click -&gt; Manage NuGet Packages</li> <li>Search for <code>Microsoft.TypeScript.MSBuild</code>
+</li> <li>Hit <code>Install</code>
+</li> <li>When install is complete, rebuild!</li> </ul> <p>More details can be found at <a href="http://docs.nuget.org/Consume/Package-Manager-Dialog">Package Manager Dialog</a> and <a href="https://github.com/Microsoft/TypeScript/wiki/Nightly-drops#using-nuget-with-msbuild">using nightly builds with NuGet</a></p><div class="_attribution">
+  <p class="_attribution-p">
+    &copy; Microsoft and other contributors<br>Licensed under the Apache License, Version 2.0.<br>
+    <a href="https://www.typescriptlang.org/docs/handbook/integrating-with-build-tools.html" class="_attribution-link">https://www.typescriptlang.org/docs/handbook/integrating-with-build-tools.html</a>
+  </p>
+</div>

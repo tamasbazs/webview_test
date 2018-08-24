@@ -1,0 +1,88 @@
+<h1 class="post-title">Type Checking JavaScript Files</h1>     <p>TypeScript 2.3 and later support a mode of type-checking and reporting errors in <code>.js</code> files with <code>--checkJs</code>.</p> <p>You can skip checking some files by adding <code>// @ts-nocheck</code> comment to them; conversely you can choose to check only a few <code>.js</code> files by adding <code>// @ts-check</code> comment to them without setting <code>--checkJs</code>. You can also ignore errors on specific lines by adding <code>// @ts-ignore</code> on the preceding line.</p> <p>Here are some notable differences on how checking work in <code>.js</code> file from <code>.ts</code> file:</p> <h2 id="using-types-in-jsdoc">Using types in JSDoc</h2> <p>In a <code>.js</code> file, types can often be inferred just like in <code>.ts</code> files. Likewise, when types can’t be inferred, they can be specified using JSDoc the same way that type annotations do in a <code>.ts</code> file.</p> <p>JSDoc annotations adorning a declaration will be used to set the type of that declaration. For example:</p> <pre data-language="javascript">/** @type {number} */
+var x;
+
+x = 0;    // OK
+x = false;  // Error: boolean is not assignable to number
+</pre> <p>You can find the full list of supported JSDoc patterns in the <a href="https://github.com/Microsoft/TypeScript/wiki/JSDoc-support-in-JavaScript">JSDoc support in JavaScript documentation</a>.</p> <h2 id="property-declaration-inferred-from-assignments-in-class-bodies">Property declaration inferred from assignments in class bodies</h2> <p>ES2015/ES6 does not have a means for declaring properties on classes. Properties are dynamically assigned, just like in the case of object literals.</p> <p>In a <code>.js</code> file property declarations are inferred from assignments to the properties inside the class body. The type of properties is the union of the types of all the right-hand values in these assignments. Properties defined in the constructor are always assumed to exist, where as ones defined in methods, getters, or setters are considered optional.</p> <p>Adorn property assignments with JSDoc to specify the type of the property as needed. For instance:</p> <pre data-language="javascript">class C {
+  constructor() {
+    /** @type {number | undefined} */
+    this.prop = undefined;
+  }
+}
+
+
+let c = new C();
+c.prop = 0;     // OK
+c.prop = "string";  // Error: string is not assignable to number|undefined
+</pre> <p>If properties are never set in the class body, they are considered unknown. If your class has properties that are only read from, consider adding an initialization in the constructor to undefined, e.g. <code>this.prop = undefined;</code>.</p> <h2 id="commonjs-module-input-support">CommonJS module input support</h2> <p>In a <code>.js</code> files CommonJS module format is allowed as an input module format. Assignments to <code>exports</code>, and <code>module.exports</code> are recognized as export declarations. Similarly, <code>require</code> function calls are recognized as module imports. For example:</p> <pre data-language="typescript">// import module "fs"
+const fs = require("fs");
+
+
+// export function readFile
+module.exports.readFile = function(f) {
+  return fs.readFileSync(f);
+}
+</pre> <h2 id="object-literals-are-open-ended">Object literals are open-ended</h2> <p>By default object literals in variable declarations provide the type of a declaration. No new members can be added that were not specified in the original initialization. This rule is relaxed in a <code>.js</code> file; object literals have an open-ended type, allowing adding and looking up properties that were not defined originally. For instance:</p> <pre data-language="javascript">var obj = { a: 1 };
+obj.b = 2;  // Allowed
+</pre> <p>Object literals get a default index signature <code>[x:string]: any</code> that allows them to be treated as open maps instead of closed objects.</p> <p>Similar to other special JS checking behaviors, this behavior can be changed by specifying a JSDoc type for the variable. For example:</p> <pre data-language="javascript">/** @type  */
+var obj = { a: 1 };
+obj.b = 2;  // Error, type {a: number} does not have property b
+</pre> <h2 id="function-parameters-are-optional-by-default">Function parameters are optional by default</h2> <p>Since there is no way to specify optionality on parameters in JS (without specifying a default value), all function parameters in <code>.js</code> file are considered optional. Calls with fewer arguments are allowed.</p> <p>It is important to note that it is an error to call a function with too many arguments.</p> <p>For instance:</p> <pre data-language="javascript">function bar(a, b){
+  console.log(a + " " + b);
+}
+
+bar(1);     // OK, second argument considered optional
+bar(1, 2);
+bar(1, 2, 3); // Error, too many arguments
+</pre> <p>JSDoc annotated functions are excluded from this rule. Use JSDoc optional parameter syntax to express optionality. e.g.:</p> <pre data-language="javascript">/**
+ * @param {string} [somebody] - Somebody's name.
+ */
+function sayHello(somebody) {
+  if (!somebody) {
+    somebody = 'John Doe';
+  }
+  alert('Hello ' + somebody);
+}
+
+sayHello();
+</pre> <h2 id="var-args-parameter-declaration-inferred-from-use-of-arguments">Var-args parameter declaration inferred from use of <code>arguments</code>
+</h2> <p>A function whose body has a reference to the <code>arguments</code> reference is implicitly considered to have a var-arg parameter (i.e. <code>(...arg: any[]) =&gt; any</code>). Use JSDoc var-arg syntax to specify the type of the arguments.</p> <h2 id="unspecified-type-parameters-default-to-any">Unspecified type parameters default to <code>any</code>
+</h2> <p>An unspecified generic type parameter defaults to <code>any</code>. There are few places where this happens:</p> <h4 id="in-extends-clause">In extends clause</h4> <p>For instance, <code>React.Component</code> is defined to have two generic type parameters, <code>Props</code> and <code>State</code>. In a <code>.js</code> file, there is no legal way to specify these in the extends clause. By default the type arguments will be <code>any</code>:</p> <pre data-language="javascript">import { Component } from "react";
+
+class MyComponent extends Component {
+  render() {
+     this.props.b; // Allowed, since this.props is of type any
+  }
+}
+</pre> <p>Use JSDoc <code>@augments</code> to specify the types explicitly. for instance:</p> <pre data-language="javascript">import { Component } from "react";
+
+/**
+ * @augments {Component&lt;{a: number}, State&gt;}
+ */
+class MyComponent extends Component {
+  render() {
+    this.props.b; // Error: b does not exist on {a:number}
+  }
+}
+</pre> <h4 id="in-jsdoc-references">In JSDoc references</h4> <p>An unspecified generic type argument in JSDoc defaults to any:</p> <pre data-language="javascript">/** @type{Array} */
+var x = [];
+
+x.push(1);    // OK
+x.push("string"); // OK, x is of type Array&lt;any&gt;
+
+
+/** @type{Array.&lt;number&gt;} */
+var y = [];
+
+y.push(1);    // OK
+y.push("string"); // Error, string is not assignable to number
+
+</pre> <h4 id="in-function-calls">In function calls</h4> <p>A call to generic functions uses arguments to infer the generic type parameters. Sometimes this process fails to infer any types, mainly because of lack on inference sources; in these cases, the generic type parameters will default to <code>any</code>. For example:</p> <pre data-language="javascript">var p = new Promise((resolve, reject) =&gt; { reject() });
+
+p; // Promise&lt;any&gt;;
+</pre><div class="_attribution">
+  <p class="_attribution-p">
+    &copy; Microsoft and other contributors<br>Licensed under the Apache License, Version 2.0.<br>
+    <a href="https://www.typescriptlang.org/docs/handbook/type-checking-javascript-files.html" class="_attribution-link">https://www.typescriptlang.org/docs/handbook/type-checking-javascript-files.html</a>
+  </p>
+</div>

@@ -1,0 +1,30 @@
+<h1 class="post-title">Symbols</h1>     <h2 id="introduction">Introduction</h2> <p>Starting with ECMAScript 2015, <code>symbol</code> is a primitive data type, just like <code>number</code> and <code>string</code>.</p> <p><code>symbol</code> values are created by calling the <code>Symbol</code> constructor.</p> <pre data-language="typescript">let sym1 = Symbol();
+
+let sym2 = Symbol("key"); // optional string key
+</pre> <p>Symbols are immutable, and unique.</p> <pre data-language="typescript">let sym2 = Symbol("key");
+let sym3 = Symbol("key");
+
+sym2 === sym3; // false, symbols are unique
+</pre> <p>Just like strings, symbols can be used as keys for object properties.</p> <pre data-language="typescript">let sym = Symbol();
+
+let obj = {
+  [sym]: "value"
+};
+
+console.log(obj[sym]); // "value"
+</pre> <p>Symbols can also be combined with computed property declarations to declare object properties and class members.</p> <pre data-language="typescript">const getClassNameSymbol = Symbol();
+
+class C {
+  [getClassNameSymbol](){
+     return "C";
+  }
+}
+
+let c = new C();
+let className = c[getClassNameSymbol](); // "C"
+</pre> <h2 id="well-known-symbols">Well-known Symbols</h2> <p>In addition to user-defined symbols, there are well-known built-in symbols. Built-in symbols are used to represent internal language behaviors.</p> <p>Here is a list of well-known symbols:</p> <h2 id="symbolhasinstance"><code>Symbol.hasInstance</code></h2> <p>A method that determines if a constructor object recognizes an object as one of the constructor’s instances. Called by the semantics of the instanceof operator.</p> <h2 id="symbolisconcatspreadable"><code>Symbol.isConcatSpreadable</code></h2> <p>A Boolean value indicating that an object should be flattened to its array elements by Array.prototype.concat.</p> <h2 id="symboliterator"><code>Symbol.iterator</code></h2> <p>A method that returns the default iterator for an object. Called by the semantics of the for-of statement.</p> <h2 id="symbolmatch"><code>Symbol.match</code></h2> <p>A regular expression method that matches the regular expression against a string. Called by the <code>String.prototype.match</code> method.</p> <h2 id="symbolreplace"><code>Symbol.replace</code></h2> <p>A regular expression method that replaces matched substrings of a string. Called by the <code>String.prototype.replace</code> method.</p> <h2 id="symbolsearch"><code>Symbol.search</code></h2> <p>A regular expression method that returns the index within a string that matches the regular expression. Called by the <code>String.prototype.search</code> method.</p> <h2 id="symbolspecies"><code>Symbol.species</code></h2> <p>A function valued property that is the constructor function that is used to create derived objects.</p> <h2 id="symbolsplit"><code>Symbol.split</code></h2> <p>A regular expression method that splits a string at the indices that match the regular expression. Called by the <code>String.prototype.split</code> method.</p> <h2 id="symboltoprimitive"><code>Symbol.toPrimitive</code></h2> <p>A method that converts an object to a corresponding primitive value. Called by the <code>ToPrimitive</code> abstract operation.</p> <h2 id="symboltostringtag"><code>Symbol.toStringTag</code></h2> <p>A String value that is used in the creation of the default string description of an object. Called by the built-in method <code>Object.prototype.toString</code>.</p> <h2 id="symbolunscopables"><code>Symbol.unscopables</code></h2> <p>An Object whose own property names are property names that are excluded from the ‘with’ environment bindings of the associated objects.</p><div class="_attribution">
+  <p class="_attribution-p">
+    &copy; Microsoft and other contributors<br>Licensed under the Apache License, Version 2.0.<br>
+    <a href="https://www.typescriptlang.org/docs/handbook/symbols.html" class="_attribution-link">https://www.typescriptlang.org/docs/handbook/symbols.html</a>
+  </p>
+</div>

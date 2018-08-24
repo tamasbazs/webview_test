@@ -1,0 +1,95 @@
+<h1 class="post-title">Mixins</h1>     <h2 id="introduction">Introduction</h2> <p>Along with traditional OO hierarchies, another popular way of building up classes from reusable components is to build them by combining simpler partial classes. You may be familiar with the idea of mixins or traits for languages like Scala, and the pattern has also reached some popularity in the JavaScript community.</p> <h2 id="mixin-sample">Mixin sample</h2> <p>In the code below, we show how you can model mixins in TypeScript. After the code, we’ll break down how it works.</p> <pre data-language="typescript">// Disposable Mixin
+class Disposable {
+  isDisposed: boolean;
+  dispose() {
+    this.isDisposed = true;
+  }
+
+}
+
+// Activatable Mixin
+class Activatable {
+  isActive: boolean;
+  activate() {
+    this.isActive = true;
+  }
+  deactivate() {
+    this.isActive = false;
+  }
+}
+
+class SmartObject implements Disposable, Activatable {
+  constructor() {
+    setInterval(() =&gt; console.log(this.isActive + " : " + this.isDisposed), 500);
+  }
+
+  interact() {
+    this.activate();
+  }
+
+  // Disposable
+  isDisposed: boolean = false;
+  dispose: () =&gt; void;
+  // Activatable
+  isActive: boolean = false;
+  activate: () =&gt; void;
+  deactivate: () =&gt; void;
+}
+applyMixins(SmartObject, [Disposable, Activatable]);
+
+let smartObj = new SmartObject();
+setTimeout(() =&gt; smartObj.interact(), 1000);
+
+////////////////////////////////////////
+// In your runtime library somewhere
+////////////////////////////////////////
+
+function applyMixins(derivedCtor: any, baseCtors: any[]) {
+  baseCtors.forEach(baseCtor =&gt; {
+    Object.getOwnPropertyNames(baseCtor.prototype).forEach(name =&gt; {
+      derivedCtor.prototype[name] = baseCtor.prototype[name];
+    });
+  });
+}
+</pre> <h2 id="understanding-the-sample">Understanding the sample</h2> <p>The code sample starts with the two classes that will act as our mixins. You can see each one is focused on a particular activity or capability. We’ll later mix these together to form a new class from both capabilities.</p> <pre data-language="typescript">// Disposable Mixin
+class Disposable {
+  isDisposed: boolean;
+  dispose() {
+    this.isDisposed = true;
+  }
+
+}
+
+// Activatable Mixin
+class Activatable {
+  isActive: boolean;
+  activate() {
+    this.isActive = true;
+  }
+  deactivate() {
+    this.isActive = false;
+  }
+}
+</pre> <p>Next, we’ll create the class that will handle the combination of the two mixins. Let’s look at this in more detail to see how it does this:</p> <pre data-language="typescript">class SmartObject implements Disposable, Activatable {
+</pre> <p>The first thing you may notice in the above is that instead of using <code>extends</code>, we use <code>implements</code>. This treats the classes as interfaces, and only uses the types behind Disposable and Activatable rather than the implementation. This means that we’ll have to provide the implementation in class. Except, that’s exactly what we want to avoid by using mixins.</p> <p>To satisfy this requirement, we create stand-in properties and their types for the members that will come from our mixins. This satisfies the compiler that these members will be available at runtime. This lets us still get the benefit of the mixins, albeit with some bookkeeping overhead.</p> <pre data-language="typescript">// Disposable
+isDisposed: boolean = false;
+dispose: () =&gt; void;
+// Activatable
+isActive: boolean = false;
+activate: () =&gt; void;
+deactivate: () =&gt; void;
+</pre> <p>Finally, we mix our mixins into the class, creating the full implementation.</p> <pre data-language="typescript">applyMixins(SmartObject, [Disposable, Activatable]);
+</pre> <p>Lastly, we create a helper function that will do the mixing for us. This will run through the properties of each of the mixins and copy them over to the target of the mixins, filling out the stand-in properties with their implementations.</p> <pre data-language="typescript">function applyMixins(derivedCtor: any, baseCtors: any[]) {
+  baseCtors.forEach(baseCtor =&gt; {
+    Object.getOwnPropertyNames(baseCtor.prototype).forEach(name =&gt; {
+      derivedCtor.prototype[name] = baseCtor.prototype[name];
+    });
+  });
+}
+
+</pre><div class="_attribution">
+  <p class="_attribution-p">
+    &copy; Microsoft and other contributors<br>Licensed under the Apache License, Version 2.0.<br>
+    <a href="https://www.typescriptlang.org/docs/handbook/mixins.html" class="_attribution-link">https://www.typescriptlang.org/docs/handbook/mixins.html</a>
+  </p>
+</div>
