@@ -4,14 +4,8 @@ import { Container, Header, Body, Title, Content, Text, List, ListItem } from "n
 //I just want to "simulate" what I'd get from the local database
 const docs = [
   {
-    name: 'Home',
-    isDoc: false,
-    doc_data: null
-  },
-  {
     name: 'Typescript',
-    isDoc: true,
-    doc_data: require('../views/docs/typescript/db.json')
+    doc_data: require('../views/docs/typescript/db.json') //I know that I can dynamically create an array that contains objects that contain certain json data, but how do I deal with require?
   }
 ];
 
@@ -37,7 +31,7 @@ export default class SideBar extends React.Component {
       list.push(
         <ListItem itemHeader first
           button
-          onPress={() => navigation.navigate((doc.isDoc)? 'DocView' : 'Home', {title: doc.name, subtitle: 'index', doc_html: (doc.doc_data)? doc.doc_data['index'] : null})}
+          onPress={() => navigation.navigate('DocView', {title: doc.name, subtitle: 'index', doc_html: (doc.doc_data)? doc.doc_data['index'] : null})}
         >
           <Text>{doc.name}</Text>
         </ListItem>
@@ -48,7 +42,7 @@ export default class SideBar extends React.Component {
           list.push(
             <ListItem 
               button
-              onPress={() => navigation.navigate((doc.isDoc)? 'DocView' : 'Home', {title: doc.name, subtitle: clean_key, doc_html: doc.doc_data[key]})}
+              onPress={() => navigation.navigate('DocView', {title: doc.name, subtitle: clean_key, doc_html: doc.doc_data[key]})}
             >
               <Text>{clean_key}</Text>
             </ListItem>
@@ -68,6 +62,12 @@ export default class SideBar extends React.Component {
         </Header>
         <Content>
           <List>
+          	<ListItem itemHeader first
+		          button
+		          onPress={() => navigation.navigate('Home')}
+		        >
+		          <Text>Home</Text>
+		        </ListItem>
             {
               this.renderList(docs, this.props.navigation)
             }
