@@ -1,0 +1,14 @@
+[
+  {
+    "name": "TypeScript",
+    "slug": "typescript",
+    "type": "typescript",
+    "links": {
+      "home": "https://www.typescriptlang.org",
+      "code": "https://github.com/Microsoft/TypeScript"
+    },
+    "release": "2.9.0",
+    "mtime": 1528680433,
+    "db_size": 1299587
+  }
+]

@@ -1,7 +1,22 @@
 import React from "react";
 import { Container, Header, Body, Title, Content, Text, List, ListItem } from "native-base";
 
-//I just want to "simulate" what I'd get from the local database
+//I'd be nice if I could say require('../views/docs/'+doc.name+'/index.json')... That way I could do what I have below in the comment block
+/*
+	const docs = require('../views/docs/docs.json');
+	docs.forEach((doc) => { //docs follows the format in ../views/docs/docs.json
+	let temp_db = require('../views/docs/'+doc.slug+'/db.json'); //again, I'd be nice if I could say require('../views/docs/'+doc.name+'/index.json')
+	doc.index = require('../views/docs/'+doc.slug+'/index.json'); //index file contains "entries": [{"name": , "path": , "type": }], path and name are very important
+	doc.index.entries.forEach((entry) => {
+		if(temp_db[entry.path]){ //coincidentally, the path of the entry is the same key of the DB json item
+			entry.html = temp_db[entry.path];
+		}else{
+			entry.html = '<h1>There is no html file with this path</h1>';
+		}
+	});
+});
+*/
+
 const docs = [
   {
     name: 'Typescript',
