@@ -3,8 +3,8 @@ import { Container, Header, Body, Title, Content, Text, List, ListItem } from "n
 
 //I'd be nice if I could say require('../views/docs/'+doc.name+'/index.json')... That way I could do what I have below in the comment block
 /*
-	const docs = require('../views/docs/docs.json');
-	docs.forEach((doc) => { //docs follows the format in ../views/docs/docs.json
+const docs = require('../views/docs/docs.json');
+docs.forEach((doc) => { //docs follows the format in ../views/docs/docs.json
 	let temp_db = require('../views/docs/'+doc.slug+'/db.json'); //again, I'd be nice if I could say require('../views/docs/'+doc.name+'/index.json')
 	doc.index = require('../views/docs/'+doc.slug+'/index.json'); //index file contains "entries": [{"name": , "path": , "type": }], path and name are very important
 	doc.index.entries.forEach((entry) => {
@@ -15,6 +15,9 @@ import { Container, Header, Body, Title, Content, Text, List, ListItem } from "n
 		}
 	});
 });
+//Everything about this ^^^^ is going to turn out really slow if the number of docs increases, not sure how one would avoid that, yet.
+//The biggest issue would be entry.html, the html strings are really long and there's a lot of them, instead of loading them all like I did above, I could fetch each one individually whenever a route is selected and pass them as a parameter like I'm doing below.
+//This issue is worth investigating, which method of fetching and passing data would be best for performance and reponsitivity?
 */
 
 const docs = [
@@ -25,6 +28,11 @@ const docs = [
 ];
 
 export default class SideBar extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = { docs };
+	}
+
   cleanString(path) {
     let path_array = path.split('');
     let i = 0;
@@ -40,13 +48,13 @@ export default class SideBar extends React.Component {
 
   }
 
-  renderList(docs, navigation) {
+  renderList(docs) {
     let list = [];
     docs.forEach((doc) => {
       list.push(
         <ListItem itemHeader first
           button
-          onPress={() => navigation.navigate('DocView', {title: doc.name, subtitle: 'index', doc_html: (doc.doc_data)? doc.doc_data['index'] : null})}
+          onPress={() => this.props.navigation.navigate('DocView', {title: doc.name, subtitle: 'index', doc_html: (doc.doc_data)? doc.doc_data['index'] : null})}
         >
           <Text>{doc.name}</Text>
         </ListItem>
@@ -57,7 +65,7 @@ export default class SideBar extends React.Component {
           list.push(
             <ListItem 
               button
-              onPress={() => navigation.navigate('DocView', {title: doc.name, subtitle: clean_key, doc_html: doc.doc_data[key]})}
+              onPress={() => this.props.navigation.navigate('DocView', {title: doc.name, subtitle: clean_key, doc_html: doc.doc_data[key]})}
             >
               <Text>{clean_key}</Text>
             </ListItem>
@@ -79,12 +87,12 @@ export default class SideBar extends React.Component {
           <List>
           	<ListItem itemHeader first
 		          button
-		          onPress={() => navigation.navigate('Home')}
+		          onPress={() => this.props.navigation.navigate('Home')}
 		        >
 		          <Text>Home</Text>
 		        </ListItem>
             {
-              this.renderList(docs, this.props.navigation)
+              this.renderList(this.state.docs)
             }
           </List>
         </Content>
