@@ -2,11 +2,6 @@ import React from 'react';
 import { Container, Header, Left, Right, Button, Body, Title, Content, Text, Icon } from 'native-base';
 
 export default class Home extends React.Component {
-	
-	static navigationOptions = {
-    drawerLabel: 'Home'
-  };
-
   render() {
     return (
     	<Container>

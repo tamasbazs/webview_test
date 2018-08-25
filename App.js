@@ -1,21 +1,8 @@
 import React from 'react';
 import Expo from 'expo';
-import { createDrawerNavigator } from 'react-navigation';
-import Home from './Views/Home.js';
-import DocView from './Views/DocView.js';
-
-const RootStack = createDrawerNavigator(
-  {
-    Home: Home,
-    Typescript: DocView
-  },
-  {
-    initialRouteName: 'Home'
-  }
-);
+import { RootStack } from './navigation/DrawerNavigator.js';
 
 export default class App extends React.Component {
-
   constructor() {
     super();
     this.state = {
