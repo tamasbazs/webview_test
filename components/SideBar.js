@@ -18,6 +18,7 @@ docs.forEach((doc) => { //docs follows the format in ../views/docs/docs.json
 //Everything about this ^^^^ is going to turn out really slow if the number of docs increases, not sure how one would avoid that, yet.
 //The biggest issue would be entry.html, the html strings are really long and there's a lot of them, instead of loading them all like I did above, I could fetch each one individually whenever a route is selected and pass them as a parameter like I'm doing below.
 //This issue is worth investigating, which method of fetching and passing data would be best for performance and reponsitivity?
+//Some logic I'm thinking about, on sidebar I just need list of docs and the entries, so on docview I could load the html string with a small param (which is entry.path), this is how I look at it: (sidebar=[list of docs, index.json of docs (contains paths)]) => param=entry.path => (docviewHTML=require(entry.path and some strings))
 */
 
 const docs = [
