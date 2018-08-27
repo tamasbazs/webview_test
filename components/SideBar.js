@@ -46,7 +46,6 @@ export default class SideBar extends React.Component {
       }
     }
     return path_array.join('');
-
   }
 
   renderList(docs) {
@@ -76,6 +75,7 @@ export default class SideBar extends React.Component {
     });
     return list;
   }
+  
   render() {
     return (
       <Container>
